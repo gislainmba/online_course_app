@@ -12,6 +12,20 @@ import logging
 logger = logging.getLogger(__name__)
 # Create your views here.
 
+def submit(request, course_id):
+    user = request.user
+    course = get_object_or_404(Course, pk=course_id)
+    enrollment_id = Enrollment.objects.get(user=user, course=course)
+    submission = Submission.objects.create(enrollment_id=enrollment_id)
+    
+    answers = extract_answers(request)
+    submission.choices.set(answers)
+    submission.save()
+
+    submission.choices.set(answers)
+    submission_id = submission.id
+
+    return HttpResponseRedirect(reverse(viewname='onlinecourse:show_exam_result', args=(course_id, submission_id,)))
 
 def registration_request(request):
     context = {}
@@ -102,7 +116,14 @@ def enroll(request, course_id):
 
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
 
-
+def extract_answers(request):
+    submitted_anwsers = []
+    for key in request.POST:
+        if key.startswith('choice'):
+            value = request.POST[key]
+            choice_id = int(value)
+            submitted_anwsers.append(choice_id)
+    return submitted_anwsers
 # <HINT> Create a submit view to create an exam submission record for a course enrollment,
 # you may implement it based on following logic:
          # Get user and course object, then get the associated enrollment object created when the user enrolled the course
@@ -131,6 +152,19 @@ def enroll(request, course_id):
         # For each selected choice, check if it is a correct answer or not
         # Calculate the total score
 #def show_exam_result(request, course_id, submission_id):
+def show_exam_result(request, course_id, submission_id):
+    context = {}
+    course = get_object_or_404(Course, pk=course_id)
+    submission = Submission.objects.get(id=submission_id)
+    choices = submission.choices.all()
+    total_score = 0
+    for choice in choices:
+        if choice.is_correct:
+            total_score += choice.question_id.gradePoint
+    context['course'] = course
+    context['gradePoint'] = total_score
+    context['choices'] = choices
 
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
 
 
