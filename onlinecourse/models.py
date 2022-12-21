@@ -111,12 +111,12 @@ class Question(models.Model):
         return "Question: " + self.questionContent
     # <HINT> A sample model method to calculate if learner get the score of the question
     def is_get_score(self, selected_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        if all_answers == selected_correct:
-            return True
-       else:
-            return False
+      all_answers = self.choice_set.filter(is_correct=True).count()
+      selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
+      if all_answers == selected_correct:
+        return True
+      else:
+        return False
 
 
 #  <HINT> Create a Choice Model with:
