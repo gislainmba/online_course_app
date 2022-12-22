@@ -109,6 +109,7 @@ class Question(models.Model):
 
     def __str__(self):
         return "Question: " + self.questionContent
+        
     # <HINT> A sample model method to calculate if learner get the score of the question
     def is_get_score(self, selected_ids):
       all_answers = self.choice_set.filter(is_correct=True).count()
@@ -126,7 +127,7 @@ class Question(models.Model):
     # Indicate if this choice of the question is a correct one or not
     # Other fields and methods you would like to design
 class Choice(models.Model):
-    question_id = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question_id = models.ForeignKey(Question, on_delete=models.CASCADE, default="")
     choice_text = models.CharField(max_length=35)
     is_correct = models.BooleanField()
 
